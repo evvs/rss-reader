@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build:
-    name: run tests
+    name: run webpack dev
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -12,13 +12,5 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm run build --if-present
+    - run: make webpack dev
     - run: make lint
-    - name: Test & publish code coverage
-      uses: paambaati/codeclimate-action@v2.4.0
-      env:
-        CC_TEST_REPORTER_ID: 3c40ada24f32d2ab12c05f02afec0a95203e78879411a6472701bbc911794981
-      with:
-        coverageCommand: make webpack dev
-        debug: true
