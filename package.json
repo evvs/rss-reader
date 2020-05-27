@@ -2,9 +2,12 @@
   "name": "frontend-project-lvl3",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/app.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack='production'"
   },
   "browserslist": "> 0.25%, not dead",
   "repository": {
