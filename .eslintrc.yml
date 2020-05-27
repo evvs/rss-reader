@@ -1,0 +1,8 @@
+env:
+ node: true
+ browser: true
+extends:
+ - 'airbnb-base'
+ - 'eslint:recommended'
+rules:
+ no-console: 0
