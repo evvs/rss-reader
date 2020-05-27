@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "webpack='production'"
+    "build": "npx webpack --mode=production"
   },
   "browserslist": "> 0.25%, not dead",
   "repository": {
