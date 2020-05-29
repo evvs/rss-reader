@@ -33,6 +33,9 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.8.7"
+    "@babel/polyfill": "^7.8.7",
+    "axios": "^0.19.2",
+    "melanke-watchjs": "^1.5.2",
+    "yup": "^0.29.1"
   }
 }
