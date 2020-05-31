@@ -2,8 +2,8 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  mode: "development",
-  entry: ["@babel/polyfill", "./src/app.js"],
+  mode: "production",
+  entry: ["./src/app.js"],
   output: {
     filename: "app.js",
     path: path.resolve(__dirname, "dist"),
@@ -22,5 +22,13 @@ module.exports = {
           }
         } }
     ]
-  }
+  },
+  devServer: {
+    hot: true,
+    port: 3000,
+    open: true,
+    historyApiFallback: {
+      disableDotRule: true,
+    },
+  },
 };

@@ -1,26 +1,19 @@
-import * as yup from 'yup';
 import axios from 'axios';
 import watch from './watchers';
 import parseXml from './parser';
-
-const schema = yup.object().shape({
-  userInput: yup.string().url(),
-});
-
-const validate = (fields) => {
-  try {
-    schema.validateSync(fields, { abortEarly: false });
-    return {};
-  } catch (err) {
-    return err.inner;
-  }
-};
+import { validate } from './utils';
+import _ from 'lodash';
 
 const app = () => {
   const state = {
+    status: 'loaded',
     rssInputForm: {
       userInput: null,
-      valid: true,
+      valid: null,
+    },
+    feeds: {
+      activeFeeds: [],
+      lastAddedFeed: null,
     },
   };
 
@@ -39,10 +32,20 @@ const app = () => {
 
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    state.status = 'loading';
     const proxy = 'https://cors-anywhere.herokuapp.com';
 
     axios.get(`${proxy}/${state.rssInputForm.userInput}`)
-      .then((data) => parseXml(data));
+      .then((response) => {
+        state.status = 'loaded';
+        const { data } = response;
+        const feed = parseXml(data);
+
+        state.feeds.lastAddedFeed = feed;
+        state.feeds.activeFeeds.push(feed);
+      })
+      .then(() => console.log(state))
+      .catch((err) => console.log(err));
   });
 
   watch(state);
