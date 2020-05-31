@@ -4,7 +4,7 @@ import parseXml from './parser';
 import { validate } from './utils';
 import _ from 'lodash';
 
-const app = () => {
+export default () => {
   const state = {
     status: 'loaded',
     rssInputForm: {
@@ -37,12 +37,12 @@ const app = () => {
 
     axios.get(`${proxy}/${state.rssInputForm.userInput}`)
       .then((response) => {
-        state.status = 'loaded';
         const { data } = response;
         const feed = parseXml(data);
 
         state.feeds.lastAddedFeed = feed;
         state.feeds.activeFeeds.push(feed);
+        state.status = 'loaded';
       })
       .then(() => console.log(state))
       .catch((err) => console.log(err));
@@ -50,5 +50,3 @@ const app = () => {
 
   watch(state);
 };
-
-export default app;
