@@ -2,13 +2,13 @@
   "name": "frontend-project-lvl3",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/app.js",
+  "private": true,
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "npx webpack",
-    "hotreload": "node --max-old-space-size=8192 node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.js"
+    "build": "npx webpack --mode=production",
+    "devserv": "npx webpack-dev-server --mode development --open"
   },
   "browserslist": "> 0.25%, not dead",
   "repository": {
@@ -22,13 +22,14 @@
   },
   "homepage": "https://github.com/evvs/frontend-project-lvl3#readme",
   "devDependencies": {
-    "@babel/core": "^7.10.0",
-    "@babel/preset-env": "^7.10.0",
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
     "babel-loader": "^8.1.0",
     "eslint": "^7.1.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-plugin-import": "^2.20.2",
     "html-webpack-plugin": "^4.3.0",
+    "prettier": "^2.0.5",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0"

@@ -15,6 +15,7 @@ export default () => {
       activeFeeds: [],
       lastAddedFeed: null,
     },
+    errors: [],
   };
 
   const urlInputField = document.getElementById('urlInput');
@@ -33,13 +34,12 @@ export default () => {
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
     state.status = 'loading';
-    const proxy = 'https://cors-anywhere.herokuapp.com';
 
+    const proxy = 'https://cors-anywhere.herokuapp.com';
     axios.get(`${proxy}/${state.rssInputForm.userInput}`)
       .then((response) => {
         const { data } = response;
         const feed = parseXml(data);
-
         state.feeds.lastAddedFeed = feed;
         state.feeds.activeFeeds.push(feed);
         state.status = 'loaded';

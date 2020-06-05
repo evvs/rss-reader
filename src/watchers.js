@@ -4,7 +4,7 @@ export default (state) => {
   const { watch } = WatchJS;
   const urlInputField = document.getElementById('urlInput');
   const submitButton = document.querySelector('.btn-primary');
-  const feedList = document.querySelector('[data-feeds]');
+  const feedsList = document.querySelector('[data-feeds]');
   const postsList = document.querySelector('[data-posts]');
 
   watch(state.rssInputForm, 'valid', () => {
@@ -28,14 +28,13 @@ export default (state) => {
   });
 
   watch(state.feeds, 'lastAddedFeed', () => {
-
     const { feedTitle, feedDescription } = state.feeds.lastAddedFeed;
-    const liElemFeed = document.createElement('li');
-    const h6Feed = document.createElement('h6');
-    h6Feed.textContent = `${feedTitle}`;
-    liElemFeed.classList.add('list-group-item');
-    liElemFeed.append(h6Feed);
-    liElemFeed.append(`${feedDescription}`);
-    feedList.append(liElemFeed);
+    const feed = document.createElement('li');
+    const feedHeader = document.createElement('h6');
+    feedHeader.textContent = `${feedTitle}`;
+    feed.classList.add('list-group-item');
+    feed.append(feedHeader);
+    feed.append(`${feedDescription}`);
+    feedsList.append(feed);
   });
 };

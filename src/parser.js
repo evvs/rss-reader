@@ -12,13 +12,11 @@ export default (rssXml) => {
   const feedDescription = data.querySelector('description').textContent;
   const feedLink = data.querySelector('link').textContent;
   const id = generateId(feedLink);
-  const posts = [];
-
-  listItems.forEach((item) => {
+  const posts = [...listItems].map((item) => {
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
-    posts.push({ title, description, link });
+    return { title, description, link };
   });
 
   return {

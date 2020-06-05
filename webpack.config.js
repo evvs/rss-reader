@@ -2,33 +2,22 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  mode: "production",
-  entry: ["./src/app.js"],
+  context: path.resolve(__dirname, "src"),
+  mode: "development",
+  entry: ["@babel/polyfill", "./app.js"],
   output: {
-    filename: "app.js",
+    filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
   },
-  plugins: [new HtmlWebpackPlugin({ template: "./src/template.html" })],
+  plugins: [
+    new HtmlWebpackPlugin({template: "./template.html"})
+  ],
   module: {
     rules: [
-      { test: /\.js$/,
-        exclude: /node_modules/,
-        loader: {
-          loader: "babel-loader",
-          options: {
-            presets: [
-              "@babel/preset-env"
-            ]
-          }
-        } }
+      { test: /\.js$/, exclude: /node_modules/, loader: "babel-loader" }
     ]
   },
   devServer: {
-    hot: true,
-    port: 3000,
-    open: true,
-    historyApiFallback: {
-      disableDotRule: true,
-    },
+    port: 4200,
   },
 };
