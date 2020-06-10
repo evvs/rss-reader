@@ -5,7 +5,6 @@ export default (rssXml) => {
 
   if (error) throw new Error('parsingError');
 
-  console.log(data)
   const listItems = data.querySelectorAll('item');
   const feedTitle = data.querySelector('title').textContent;
   const feedDescription = data.querySelector('description').textContent;

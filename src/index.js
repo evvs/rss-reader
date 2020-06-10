@@ -37,7 +37,6 @@ export default () => {
       state.rssInputForm.valid = false;
       state.rssInputForm.errors = validationErrors;
       const { type } = validationErrors.find(({ name }) => name === 'ValidationError');
-      console.log(state)
       state.outputMessage = i18next.t(`ValidationError.${type}`);
       return;
     }
