@@ -1,5 +1,6 @@
 import axios from 'axios';
 import i18next from 'i18next';
+import _ from 'lodash';
 import watch from './watchers';
 import parseXml from './parser';
 import resources from './locales';
@@ -15,7 +16,7 @@ export default () => {
     },
     feeds: {
       activeFeeds: [],
-      lastAddedFeed: null,
+      newPosts: null,
     },
     loadingErrors: {},
     outputMessage: '',
@@ -26,6 +27,26 @@ export default () => {
     debug: true,
     resources,
   });
+
+  const checkNewFeeds = (url) => {
+    const proxy = 'https://cors-anywhere.herokuapp.com';
+    const feedId = generateId(url);
+    const alreadyAddedFeed = state.feeds.activeFeeds.find(({ id }) => id === feedId);
+
+    axios.get(`${proxy}/${url}`)
+      .then((response) => {
+        const { data } = response;
+        const feed = parseXml(data);
+        const newPosts = _.differenceBy(feed.posts, alreadyAddedFeed.posts, 'link');
+        if (newPosts.length) {
+          newPosts.forEach((post) => {
+            alreadyAddedFeed.posts.push(post);
+            state.feeds.newPosts = { feedId, newPosts };
+          });
+        }
+        setTimeout(checkNewFeeds, 5000, url);
+      });
+  };
 
   const urlInputField = document.getElementById('urlInput');
   const rssForm = document.querySelector('form');
@@ -60,15 +81,16 @@ export default () => {
     state.status = 'loading';
 
     const proxy = 'https://cors-anywhere.herokuapp.com';
-    axios.get(`${proxy}/${state.rssInputForm.userInput}`)
+    const url = state.rssInputForm.userInput;
+    axios.get(`${proxy}/${url}`)
       .then((response) => {
         const { data } = response;
         const feed = parseXml(data);
-        feed.id = generateId(state.rssInputForm.userInput);
-        state.feeds.lastAddedFeed = feed;
+        feed.id = generateId(url);
         state.feeds.activeFeeds.push(feed);
         state.status = 'loaded';
       })
+      .then(() => checkNewFeeds(url))
       .catch((err) => {
         state.status = 'errorWhileLoading';
         if (err.request) {

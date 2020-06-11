@@ -1,28 +1,30 @@
 import WatchJS from 'melanke-watchjs';
+import _ from 'lodash';
 
-const generatePostsList = (posts, listId) => {
-  const postsList = posts.map((post) => {
-    const { title, description, link } = post;
-    const container = document.createElement('div');
-    const postTitle = document.createElement('a');
-    postTitle.setAttribute('href', `${link}`);
-    postTitle.textContent = `${title}`;
-    container.append(postTitle);
+const generatePosts = (posts) => posts.map((post) => {
+  const { title, description, link } = post;
+  const container = document.createElement('div');
+  const postTitle = document.createElement('a');
+  postTitle.setAttribute('href', `${link}`);
+  postTitle.textContent = `${title}`;
+  container.append(postTitle);
 
-    const postDescription = document.createElement('div');
-    postDescription.textContent = `${description}`;
-    container.append(postDescription);
+  const postDescription = document.createElement('div');
+  postDescription.textContent = `${description}`;
+  container.append(postDescription);
 
-    const li = document.createElement('li');
-    li.classList.add('list-group-item');
-    li.append(container);
-    return li;
-  });
+  const li = document.createElement('li');
+  li.classList.add('list-group-item');
+  li.append(container);
+  return li;
+});
 
+
+const generateList = (listOfPosts, listId) => {
   const ul = document.createElement('ul');
   ul.classList.add('list-group');
   ul.setAttribute('data-feedid', `${listId}`);
-  postsList.forEach((post) => {
+  listOfPosts.forEach((post) => {
     ul.append(post);
   });
   return ul;
@@ -63,6 +65,22 @@ export default (state) => {
       loadingSpinner.removeAttribute('hidden');
       return;
     }
+    if (state.status === 'loaded') {
+      const {
+        id, feedTitle, feedDescription, posts,
+      } = _.last(state.feeds.activeFeeds);
+
+      const feed = document.createElement('li');
+      const feedHeader = document.createElement('h5');
+      const listOfPosts = generatePosts(posts);
+      feedHeader.textContent = `${feedTitle}`;
+      feed.classList.add('list-group-item');
+      feed.append(feedHeader);
+      feed.append(`${feedDescription}`);
+      feed.setAttribute('data-feedid', `${id}`);
+      feedsList.append(feed);
+      postsContainer.append(generateList(listOfPosts, id));
+    }
     if (state.status === 'errorWhileLoading') {
       displayError();
     }
@@ -70,19 +88,12 @@ export default (state) => {
     loadingSpinner.setAttribute('hidden', '');
   });
 
-  watch(state.feeds, 'lastAddedFeed', () => {
-    const {
-      id, feedTitle, feedDescription, posts,
-    } = state.feeds.lastAddedFeed;
+  watch(state.feeds, 'newPosts', () => {
+    const { feedId, newPosts } = state.feeds.newPosts;
+    const listPosts = document.querySelector(`ul[data-feedId='${feedId}']`);
 
-    const feed = document.createElement('li');
-    const feedHeader = document.createElement('h5');
-    feedHeader.textContent = `${feedTitle}`;
-    feed.classList.add('list-group-item');
-    feed.append(feedHeader);
-    feed.append(`${feedDescription}`);
-    feed.setAttribute('data-feedid', `${id}`);
-    feedsList.append(feed);
-    postsContainer.append(generatePostsList(posts, id));
+    generatePosts(newPosts).forEach((post) => {
+      listPosts.append(post);
+    });
   });
 };
