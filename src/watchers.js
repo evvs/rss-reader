@@ -40,6 +40,7 @@ export default (state) => {
   const postsContainer = document.querySelector('[data-posts]');
 
   const displayError = () => {
+    if (inputFrom.nextElementSibling) inputFrom.nextElementSibling.remove();
     const errMessageContainer = document.createElement('div');
     errMessageContainer.classList.add('text-danger');
     errMessageContainer.textContent = state.outputMessage;
@@ -47,15 +48,14 @@ export default (state) => {
   };
 
   watch(state, 'rssInputForm', () => {
-    if (inputFrom.nextElementSibling) inputFrom.nextElementSibling.remove();
-    if (state.rssInputForm.valid) {
-      urlInputField.classList.remove('is-invalid');
-      submitButton.removeAttribute('disabled');
+    if (!state.rssInputForm.valid) {
+      displayError();
+      submitButton.setAttribute('disabled', '');
+      urlInputField.classList.add('is-invalid');
       return;
     }
-    displayError();
-    submitButton.setAttribute('disabled', '');
-    urlInputField.classList.add('is-invalid');
+    urlInputField.classList.remove('is-invalid');
+    submitButton.removeAttribute('disabled');
   });
 
   watch(state, 'status', () => {
