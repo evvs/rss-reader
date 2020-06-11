@@ -54,6 +54,7 @@ export default (state) => {
       urlInputField.classList.add('is-invalid');
       return;
     }
+    if (inputFrom.nextElementSibling) inputFrom.nextElementSibling.remove();
     urlInputField.classList.remove('is-invalid');
     submitButton.removeAttribute('disabled');
   });
