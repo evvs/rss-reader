@@ -1,100 +1,113 @@
 import WatchJS from 'melanke-watchjs';
 import _ from 'lodash';
 
-const generatePosts = (posts) => posts.map((post) => {
-  const { title, description, link } = post;
-  const container = document.createElement('div');
-  const postTitle = document.createElement('a');
-  postTitle.setAttribute('href', `${link}`);
-  postTitle.textContent = `${title}`;
-  container.append(postTitle);
-
-  const postDescription = document.createElement('div');
-  postDescription.textContent = `${description}`;
-  container.append(postDescription);
-
-  const li = document.createElement('li');
-  li.classList.add('list-group-item');
-  li.append(container);
-  return li;
-});
-
-
-const generateList = (listOfPosts, listId) => {
-  const ul = document.createElement('ul');
-  ul.classList.add('list-group');
-  ul.setAttribute('data-feedid', `${listId}`);
-  listOfPosts.forEach((post) => {
-    ul.append(post);
-  });
-  return ul;
-};
-
 export default (state) => {
   const { watch } = WatchJS;
-  const inputFrom = document.querySelector('form');
+  const inputForm = document.querySelector('form');
   const jumbotron = document.querySelector('.jumbotron');
   const urlInputField = document.getElementById('urlInput');
   const submitButton = document.querySelector('.btn-primary');
   const feedsList = document.querySelector('[data-feeds]');
-  const postsContainer = document.querySelector('[data-posts]');
+  const postsContainer = document.querySelector('[data-posts] ul');
+  const loadingSpinner = submitButton.querySelector('span.spinner-border');
 
-  const displayError = () => {
-    if (inputFrom.nextElementSibling) inputFrom.nextElementSibling.remove();
-    const errMessageContainer = document.createElement('div');
-    errMessageContainer.classList.add('text-danger');
-    errMessageContainer.textContent = state.outputMessage;
-    jumbotron.append(errMessageContainer);
+  const addFeed = () => {
+    const {
+      feedTitle, feedDescription,
+    } = _.last(state.feeds);
+    const feed = document.createElement('li');
+    const feedHeader = document.createElement('h5');
+    feedHeader.textContent = `${feedTitle}`;
+    feed.classList.add('list-group-item');
+    feed.append(feedHeader);
+    feed.append(`${feedDescription}`);
+    feedsList.append(feed);
   };
 
-  watch(state, 'rssInputForm', () => {
-    if (!state.rssInputForm.valid) {
-      displayError();
-      submitButton.setAttribute('disabled', '');
-      urlInputField.classList.add('is-invalid');
-      return;
-    }
-    if (inputFrom.nextElementSibling) inputFrom.nextElementSibling.remove();
-    urlInputField.classList.remove('is-invalid');
-    submitButton.removeAttribute('disabled');
-  });
-
-  watch(state, 'status', () => {
-    const loadingSpinner = submitButton.querySelector('span.spinner-border');
-    if (state.status === 'loading') {
-      submitButton.setAttribute('disabled', '');
-      loadingSpinner.removeAttribute('hidden');
-      return;
-    }
-    if (state.status === 'loaded') {
-      const {
-        id, feedTitle, feedDescription, posts,
-      } = _.last(state.feeds.activeFeeds);
-
-      const feed = document.createElement('li');
-      const feedHeader = document.createElement('h5');
-      const listOfPosts = generatePosts(posts);
-      feedHeader.textContent = `${feedTitle}`;
-      feed.classList.add('list-group-item');
-      feed.append(feedHeader);
-      feed.append(`${feedDescription}`);
-      feed.setAttribute('data-feedid', `${id}`);
-      feedsList.append(feed);
-      postsContainer.append(generateList(listOfPosts, id));
-    }
-    if (state.status === 'errorWhileLoading') {
-      displayError();
-    }
-    submitButton.removeAttribute('disabled');
-    loadingSpinner.setAttribute('hidden', '');
-  });
-
-  watch(state.feeds, 'newPosts', () => {
-    const { feedId, newPosts } = state.feeds.newPosts;
-    const listPosts = document.querySelector(`ul[data-feedId='${feedId}']`);
-
-    generatePosts(newPosts).forEach((post) => {
-      listPosts.append(post);
+  const renderPosts = () => {
+    postsContainer.innerHTML = '';
+    state.posts.forEach((post)=> {
+      const { title, link, description } = post;
+      const container = document.createElement('div');
+      const postTitle = document.createElement('a');
+      postTitle.setAttribute('href', `${link}`);
+      postTitle.textContent = `${title}`;
+      container.append(postTitle);
+      const postDescription = document.createElement('div');
+      postDescription.textContent = `${description}`;
+      container.append(postDescription);
+      const li = document.createElement('li');
+      li.classList.add('list-group-item');
+      li.append(container);
+      postsContainer.append(li);
     });
+  };
+
+  const form = {
+    submit: {
+      enable() { submitButton.removeAttribute('disabled'); },
+      disable() { submitButton.setAttribute('disabled', ''); },
+    },
+    inputField: {
+      setValid() { urlInputField.classList.remove('is-invalid'); },
+      setInvalid() { urlInputField.classList.add('is-invalid'); },
+    },
+    error: {
+      add() {
+        if (inputForm.nextElementSibling) this.remove();
+        const errMessageContainer = document.createElement('div');
+        errMessageContainer.classList.add('text-danger');
+        errMessageContainer.textContent = state.outputMessage;
+        jumbotron.append(errMessageContainer);
+      },
+      remove() { inputForm.nextElementSibling.remove(); },
+    },
+    loadingSpinner: {
+      display() { loadingSpinner.removeAttribute('hidden'); },
+      hide() { loadingSpinner.setAttribute('hidden', ''); },
+    },
+  };
+
+  watch(state.form, 'validationState', () => {
+    if (!state.form.validationState) {
+      // form.error.add();
+      form.inputField.setInvalid();
+      form.submit.disable();
+      return;
+    }
+    if (inputForm.nextElementSibling) form.error.remove();
+    form.inputField.setValid();
+    form.submit.enable();
+  });
+
+  watch(state.form, 'status', () => {
+    switch (state.form.status) {
+      case 'filling':
+        form.submit.enable();
+        break;
+      case 'processing':
+        form.submit.disable();
+        form.loadingSpinner.display();
+        break;
+
+      case 'processed':
+        form.loadingSpinner.hide();
+        break;
+
+      case 'failed':
+        form.error.add();
+        form.submit.enable();
+        form.loadingSpinner.hide();
+        break;
+
+      default:
+        throw new Error(`Unexpected form status: ${state.form.status}`);
+    }
+  });
+  watch(state, 'feeds', () => {
+    addFeed();
+  });
+  watch(state, 'posts', () => {
+    renderPosts();
   });
 };

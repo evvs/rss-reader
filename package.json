@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "npx webpack --mode=production",
-    "devserv": "npx webpack-dev-server --mode development --open"
+    "devserver": "npx webpack-dev-server --mode development --open"
   },
   "browserslist": "> 0.25%, not dead",
   "repository": {
