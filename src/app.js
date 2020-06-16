@@ -11,8 +11,8 @@ export default () => {
     form: {
       status: '',
       userInput: '',
-      validationState: null,
-      errors: {},
+      validationState: true,
+      errors: [],
     },
     feeds: [],
     posts: [],
@@ -23,27 +23,20 @@ export default () => {
     debug: true,
     resources,
   });
-/*
-  const checkNewFeeds = (url) => {
-    const proxy = 'https://cors-anywhere.herokuapp.com';
-    const feedId = generateId(url);
-    //const alreadyAddedFeed = state.feeds.activeFeeds.find(({ id }) => id === feedId);
+
+  const checkNewFeeds = (url, proxy, feedId) => {
 
     axios.get(`${proxy}/${url}`)
       .then((response) => {
         const { data } = response;
-        const feed = parseXml(data);
-        const newPosts = _.differenceBy(feed.posts, alreadyAddedFeed.posts, 'link');
-        if (newPosts.length > 0) {
-          newPosts.forEach((post) => {
-            alreadyAddedFeed.posts.push(post);
-            state.feeds.newPosts = { feedId, newPosts };
-          });
-        }
-        setTimeout(checkNewFeeds, 5000, url);
+        const { posts } = parseXml(data);
+        const newPosts = _.differenceBy(posts, state.posts, 'link');
+        console.log(newPosts);
+        state.posts = [...state.posts, ...newPosts.map((post) => ({ ...post, feedId }))];
+        setTimeout(checkNewFeeds, 5000, url, proxy, feedId);
       });
   };
-*/
+
   const urlInputField = document.getElementById('urlInput');
   const rssForm = document.querySelector('form');
 
@@ -54,8 +47,7 @@ export default () => {
     if (validationErrors.length > 0) {
       state.form.validationState = false;
       state.form.errors = validationErrors;
-      //const { type } = validationErrors.find(({ name }) => name === 'ValidationError');
-      // state.outputMessage = i18next.t(`ValidationError.${type}`);
+     // const { type } = validationErrors.find(({ type }) => name === 'ValidationError');
       return;
     }
     state.form.validationState = true;
@@ -63,40 +55,23 @@ export default () => {
 
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
-/*
-    const duplicate = state.feeds.activeFeeds
-      .find(({ id }) => id === generateId(state.rssInputForm.userInput));
 
-    if (duplicate) {
-      state.form.validationState = false;
-      state.form.errors = {
-        type: 'duplicatedUrl',
-      };
-      // state.outputMessage = i18next.t('ValidationError.duplicatedUrl');
-      throw new Error('Rss already exists');
-    }
-
- */
     state.form.status = 'processing';
     const proxy = 'https://cors-anywhere.herokuapp.com';
     const url = state.form.userInput;
+    const feedId = generateId(url);
     axios.get(`${proxy}/${url}`)
       .then((response) => {
         state.form.userInput = '';
         state.form.status = 'processed';
         const { data } = response;
         const { posts, feedTitle, feedDescription } = parseXml(data);
-        const id = generateId(url);
-        const feed = { id, feedTitle, feedDescription };
-        state.feeds.push(feed);
-        posts.forEach((post) => {
-          const { title, description, link } = post;
-          state.posts.push({
-            feedId: id, title, link, description,
-          });
-        });
+        const feed = { feedId, feedTitle, feedDescription };
+        state.feeds = [...state.feeds, feed];
+        state.posts = [...state.posts, ...posts.map((post) => ({ ...post, feedId }))];
       })
-      //.then(() => checkNewFeeds(url))
+      .then(() => checkNewFeeds(url, proxy, feedId))
+      /*
       .catch((err) => {
         state.status = 'failed';
         if (err.request) {
@@ -109,6 +84,7 @@ export default () => {
         state.loadingErrors.type = 'parsingError';
         state.outputMessage = i18next.t('parsingError');
       });
+       */
   });
 
   watch(state);

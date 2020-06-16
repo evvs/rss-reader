@@ -2,8 +2,7 @@ import * as yup from 'yup';
 
 const generateId = (url) => {
   const regExp = url.match(/(?<=:\/\/).*/g);
-  if (!regExp) return;
-  return regExp.join();
+  return regExp ? regExp.join() : regExp;
 };
 
 const isDuplicate = (feeds) => (userInput) => {

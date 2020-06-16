@@ -26,7 +26,7 @@ export default (state) => {
 
   const renderPosts = () => {
     postsContainer.innerHTML = '';
-    state.posts.forEach((post)=> {
+    state.posts.forEach((post) => {
       const { title, link, description } = post;
       const container = document.createElement('div');
       const postTitle = document.createElement('a');
