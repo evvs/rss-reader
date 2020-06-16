@@ -24,14 +24,14 @@ export default () => {
     resources,
   });
 
-  const checkNewFeeds = (url, proxy, feedId) => {
+  const checkNewPosts = (url, proxy, feedId) => {
     axios.get(`${proxy}/${url}`)
       .then((response) => {
         const { data } = response;
         const { posts } = parseXml(data);
         const newPosts = _.differenceBy(posts, state.posts, 'link');
         state.posts = [...state.posts, ...newPosts.map((post) => ({ ...post, feedId }))];
-        setTimeout(checkNewFeeds, 5000, url, proxy, feedId);
+        setTimeout(checkNewPosts, 5000, url, proxy, feedId);
       });
   };
 
@@ -68,7 +68,7 @@ export default () => {
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts.map((post) => ({ ...post, feedId }))];
       })
-      .then(() => checkNewFeeds(url, proxy, feedId))
+      .then(() => checkNewPosts(url, proxy, feedId));
       /*
       .catch((err) => {
         state.status = 'failed';
