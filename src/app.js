@@ -4,7 +4,7 @@ import _ from 'lodash';
 import watch from './watchers';
 import parseXml from './parser';
 import resources from './locales';
-import { validate, generateId, isDuplicate } from './utils';
+import { validate, generateId } from './utils';
 
 export default () => {
   const state = {
@@ -25,13 +25,11 @@ export default () => {
   });
 
   const checkNewFeeds = (url, proxy, feedId) => {
-
     axios.get(`${proxy}/${url}`)
       .then((response) => {
         const { data } = response;
         const { posts } = parseXml(data);
         const newPosts = _.differenceBy(posts, state.posts, 'link');
-        console.log(newPosts);
         state.posts = [...state.posts, ...newPosts.map((post) => ({ ...post, feedId }))];
         setTimeout(checkNewFeeds, 5000, url, proxy, feedId);
       });
