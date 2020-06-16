@@ -6,7 +6,7 @@ const generateId = (url) => {
 };
 
 const isDuplicate = (feeds) => (userInput) => {
-  const listOfFeedsId = feeds.map(({ id }) => id);
+  const listOfFeedsId = feeds.map(({ feedId }) => feedId);
   return !listOfFeedsId.includes(generateId(userInput));
 };
 
@@ -20,7 +20,7 @@ const validate = (fields, feeds) => {
 
   try {
     schema.validateSync(fields, { abortEarly: false });
-    return {};
+    return [];
   } catch (err) {
     return err.inner;
   }

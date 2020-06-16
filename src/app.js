@@ -68,21 +68,20 @@ export default () => {
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts.map((post) => ({ ...post, feedId }))];
       })
-      .then(() => checkNewPosts(url, proxy, feedId));
-      /*
+      .then(() => checkNewPosts(url, proxy, feedId))
       .catch((err) => {
-        state.status = 'failed';
+        state.form.status = 'failed';
         if (err.request) {
-          state.loadingErrors = err.request;
-          state.loadingErrors.type = 'requestError';
-          state.outputMessage = i18next.t('requestError', { code: `${state.loadingErrors.status}` });
+          const requestError = { ...err, type: 'requestError' };
+          console.log(requestError);
+          state.form.errors = requestError;
+          // state.outputMessage = i18next.t('requestError', { code: `${state.loadingErrors.status}` });
           return;
         }
-        state.loadingErrors = err;
-        state.loadingErrors.type = 'parsingError';
-        state.outputMessage = i18next.t('parsingError');
+        const parsingError = { ...err, type: 'requestError' };
+        state.form.errors = parsingError;
+        // state.outputMessage = i18next.t('parsingError');
       });
-       */
   });
 
   watch(state);

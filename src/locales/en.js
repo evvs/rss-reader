@@ -1,11 +1,11 @@
 export default {
   translation: {
-    ValidationError: {
+    formErrors: {
       url: 'invalid URL',
       min: 'please input URL',
-      duplicatedUrl: 'Rss already exists',
+      duplicate: 'Rss already exists',
+      requestError: 'Request failed with status code {{code}}',
+      parsingError: 'An error occurred during parsing',
     },
-    requestError: 'Request failed with status code {{code}}',
-    parsingError: 'An error occurred during parsing',
   },
 };

@@ -70,7 +70,7 @@ export default (state) => {
 
   watch(state.form, 'validationState', () => {
     if (!state.form.validationState) {
-      // form.error.add();
+      form.error.add();
       form.inputField.setInvalid();
       form.submit.disable();
       return;
