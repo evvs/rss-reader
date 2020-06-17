@@ -1,5 +1,6 @@
 import WatchJS from 'melanke-watchjs';
 import _ from 'lodash';
+import i18next from 'i18next';
 
 export default (state) => {
   const { watch } = WatchJS;
@@ -57,7 +58,7 @@ export default (state) => {
         if (inputForm.nextElementSibling) this.remove();
         const errMessageContainer = document.createElement('div');
         errMessageContainer.classList.add('text-danger');
-        errMessageContainer.textContent = state.outputMessage;
+        errMessageContainer.textContent = state.form.errors.map(({ type }) => i18next.t(`formErrors.${type}`)).join('. ');
         jumbotron.append(errMessageContainer);
       },
       remove() { inputForm.nextElementSibling.remove(); },

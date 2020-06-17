@@ -2,7 +2,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import _ from 'lodash';
 import watch from './watchers';
-import parseXml from './parser';
+import parse from './parser';
 import resources from './locales';
 import { validate, generateId } from './utils';
 
@@ -28,7 +28,7 @@ export default () => {
     axios.get(`${proxy}/${url}`)
       .then((response) => {
         const { data } = response;
-        const { posts } = parseXml(data);
+        const { posts } = parse(data);
         const newPosts = _.differenceBy(posts, state.posts, 'link');
         state.posts = [...state.posts, ...newPosts.map((post) => ({ ...post, feedId }))];
         setTimeout(checkNewPosts, 5000, url, proxy, feedId);
@@ -45,7 +45,6 @@ export default () => {
     if (validationErrors.length > 0) {
       state.form.validationState = false;
       state.form.errors = validationErrors;
-     // const { type } = validationErrors.find(({ type }) => name === 'ValidationError');
       return;
     }
     state.form.validationState = true;
@@ -63,7 +62,7 @@ export default () => {
         state.form.userInput = '';
         state.form.status = 'processed';
         const { data } = response;
-        const { posts, feedTitle, feedDescription } = parseXml(data);
+        const { posts, feedTitle, feedDescription } = parse(data);
         const feed = { feedId, feedTitle, feedDescription };
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts.map((post) => ({ ...post, feedId }))];
@@ -72,15 +71,10 @@ export default () => {
       .catch((err) => {
         state.form.status = 'failed';
         if (err.request) {
-          const requestError = { ...err, type: 'requestError' };
-          console.log(requestError);
-          state.form.errors = requestError;
-          // state.outputMessage = i18next.t('requestError', { code: `${state.loadingErrors.status}` });
+          state.form.errors = [{ ...err, type: 'requestError' }];
           return;
         }
-        const parsingError = { ...err, type: 'requestError' };
-        state.form.errors = parsingError;
-        // state.outputMessage = i18next.t('parsingError');
+        state.form.errors = [{ ...err, type: 'parsingError' }];
       });
   });
 
