@@ -5,17 +5,14 @@ const generateId = (url) => {
   return regExp ? regExp.join() : regExp;
 };
 
-const isDuplicate = (feeds) => (userInput) => {
-  const listOfFeedsId = feeds.map(({ feedId }) => feedId);
-  return !listOfFeedsId.includes(generateId(userInput));
-};
-
 const validate = (fields, feeds) => {
+  const listOfFeedsUrl = feeds.map(({ url }) => url);
+
   const schema = yup.object().shape({
     userInput: yup.string()
       .url()
       .min(1)
-      .test('duplicate', 'Rss already exists', isDuplicate(feeds)),
+      .notOneOf(listOfFeedsUrl),
   });
 
   try {

@@ -8,6 +8,7 @@ export default (rssXml) => {
   const listItems = data.querySelectorAll('item');
   const feedTitle = data.querySelector('title').textContent;
   const feedDescription = data.querySelector('description').textContent;
+  const feedLink = data.querySelector('link').textContent;
   const posts = [...listItems].map((item) => {
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
@@ -16,6 +17,6 @@ export default (rssXml) => {
   });
 
   return {
-    feedTitle, feedDescription, posts,
+    feedTitle, feedDescription, posts, feedLink,
   };
 };

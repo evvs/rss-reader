@@ -63,7 +63,9 @@ export default () => {
         state.form.status = 'processed';
         const { data } = response;
         const { posts, feedTitle, feedDescription } = parse(data);
-        const feed = { feedId, feedTitle, feedDescription };
+        const feed = {
+          feedId, feedTitle, feedDescription, url,
+        };
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts.map((post) => ({ ...post, feedId }))];
       })
