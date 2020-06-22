@@ -11,7 +11,7 @@ export default () => {
     form: {
       status: '',
       userInput: '',
-      validationState: true,
+      valid: true,
       errors: [],
     },
     feeds: [],
@@ -24,14 +24,14 @@ export default () => {
     resources,
   });
 
-  const checkNewPosts = (url, proxy, feedId) => {
+  const updateFeeds = (url, proxy, feedId) => {
     axios.get(`${proxy}/${url}`)
       .then((response) => {
         const { data } = response;
         const { posts } = parse(data);
         const newPosts = _.differenceBy(posts, state.posts, 'link');
         state.posts = [...state.posts, ...newPosts.map((post) => ({ ...post, feedId }))];
-        setTimeout(checkNewPosts, 5000, url, proxy, feedId);
+        setTimeout(updateFeeds, 5000, url, proxy, feedId);
       });
   };
 
@@ -43,11 +43,11 @@ export default () => {
     state.form.userInput = e.target.value;
     const validationErrors = validate(state.form, state.feeds);
     if (validationErrors.length > 0) {
-      state.form.validationState = false;
+      state.form.valid = false;
       state.form.errors = validationErrors;
       return;
     }
-    state.form.validationState = true;
+    state.form.valid = true;
   });
 
   rssForm.addEventListener('submit', (e) => {
@@ -59,7 +59,6 @@ export default () => {
     const feedId = generateId(url);
     axios.get(`${proxy}/${url}`)
       .then((response) => {
-        state.form.userInput = '';
         state.form.status = 'processed';
         const { data } = response;
         const { posts, feedTitle, feedDescription } = parse(data);
@@ -67,9 +66,11 @@ export default () => {
           feedId, feedTitle, feedDescription, url,
         };
         state.feeds = [...state.feeds, feed];
-        state.posts = [...state.posts, ...posts.map((post) => ({ ...post, feedId }))];
+        posts.forEach((post) => {
+          state.posts.push({ ...post, feedId });
+        });
       })
-      .then(() => checkNewPosts(url, proxy, feedId))
+      .then(() => updateFeeds(url, proxy, feedId))
       .catch((err) => {
         state.form.status = 'failed';
         if (err.request) {
